@@ -1,17 +1,45 @@
 const monitoring = {
   servers: [{
+      address: "135.181.170.85",
+      port: "25993",
+      name: "1.12.2 TFG",
+    },
+    {
+      address: "terrafirmagreg.joinserver.xyz",
+      port: "",
+      name: "1.12.2 Magic-RPG",
+    },
+    {
     address: "terrafirmagreg.joinserver.xyz",
     port: "",
-    name: "TerraFirmaGreg",
-  }],
+    name: "1.16.5 GT:New Horizont",
+    },
+    {
+    address: "terrafirmagreg.joinserver.xyz",
+    port: "",
+    name: "1.16.5 Best Vanilla",
+    },
+    {
+    address: "terrafirmagreg.joinserver.xyz",
+    port: "",
+    name: "1.16.5 Valhelsia 3",
+    },
+    {
+    address: "terrafirmagreg.joinserver.xyz",
+    port: "",
+    name: "1.16.5 TFG",
+  }
+  ],
   total: {
-    name: "Total Online"
+    name: "Общий онлайн",
   },
   reset() {
     for (let i = 0; i < this.servers.length; i++) {
       this.servers[i].online = 0;
       this.servers[i].max_online = 0;
-      document.getElementById(`server${i}`).innerHTML = this.loadingHtml(this.servers[i]);
+      document.getElementById(`server${i}`).innerHTML = this.loadingHtml(
+        this.servers[i]
+      );
     }
     this.total.servers_loaded = 0;
     this.updateTotal();
@@ -31,7 +59,7 @@ const monitoring = {
         players: {
           now: totalCurrent,
           max: totalMax,
-        }
+        },
       };
       myTotal = this.onlineHtml(this.total, total_data);
     }
@@ -46,16 +74,20 @@ const monitoring = {
   },
   updateServerState(serverId) {
     let server = this.servers[serverId];
-    let serverUrl = `https://mcapi.us/server/status?ip=${server.address}` + (server.port ? `&port=${server.port}` : "");
+    let serverUrl =
+      `https://mcapi.us/server/status?ip=${server.address}` +
+      (server.port ? `&port=${server.port}` : "");
     let xhr = new XMLHttpRequest();
     xhr.open("GET", serverUrl, true);
     xhr.responseType = "json";
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState == 4) {
         let status = xhr.status;
         if (status == 200) {
           let data = xhr.response;
-          let serverStatus = (data.last_online) ? monitoring.onlineHtml(server, data) : monitoring.offlineHtml(server, data);
+          let serverStatus = data.last_online ?
+            monitoring.onlineHtml(server, data) :
+            monitoring.offlineHtml(server, data);
           document.getElementById(`server${serverId}`).innerHTML = serverStatus;
           if (!data.error) {
             server.online = 1 * data.players.now;
@@ -76,7 +108,7 @@ const monitoring = {
     };
     xhr.send();
   },
-  
+
   loadingHtml(server) {
     let loading = `<div class="progress-mon progress-striped-mon active"><div class="progress-bar-mon progress-bar-info-mon" role="progressbar" style="width:100%;"></div>
 <div class="progress-text-mon">
@@ -85,7 +117,8 @@ const monitoring = {
     return loading;
   },
   onlineHtml(server, data) {
-    let percentage = data.players.max > 0 ? 100.0 * data.players.now / data.players.max : 0;
+    let percentage =
+      data.players.max > 0 ? (100.0 * data.players.now) / data.players.max : 0;
     let online = `<div class="progress-mon"><div class="progress-bar-mon" role="progressbar" style="width:${percentage}%;"></div>
 <div class="progress-text-mon">
 <div class="left-mon">${server.name}</a></div>
@@ -93,13 +126,16 @@ const monitoring = {
     return online;
   },
   offlineHtml(server, data) {
-    let offline = `<div class="progress-mon"><div class="progress-bar-mon progress-bar-danger-mon" role="progressbar" style="width:100%;"></div>
+    let offline =
+      `<div class="progress-mon"><div class="progress-bar-mon progress-bar-danger-mon" role="progressbar" style="width:100%;"></div>
 <div class="progress-text-mon">
 <div class="left-mon">${server.name}</a></div>
-<div class="right-mon">` + (data.error ? `${data.error}` : "Unavailable") + `</div>
+<div class="right-mon">` +
+      (data.error ? `${data.error}` : "Unavailable") +
+      `</div>
 </div>`;
     return offline;
-  }
+  },
 };
 
 monitoring.update();
@@ -107,11 +143,13 @@ monitoring.update();
 function refreshBtn() {
   monitoring.reset();
   document.getElementById("mon-refresh").style.pointerEvents = "none";
-  document.getElementById("mon-refresh").innerHTML = '<i class="fa fa-spinner"></i> Wait...';
-  let refreshTimeout = setTimeout(function() {
+  document.getElementById("mon-refresh").innerHTML =
+    '<i class="fa fa-spinner"></i> Wait...';
+  let refreshTimeout = setTimeout(function () {
     monitoring.update();
     document.getElementById("mon-refresh").style.pointerEvents = "";
-    document.getElementById("mon-refresh").innerHTML = '<i class="fa fa-refresh"></i> Refresh';
+    document.getElementById("mon-refresh").innerHTML =
+      '<i class="fa fa-refresh"></i> Refresh';
     clearTimeout(refreshTimeout);
-  }, 2000);
+  }, 200);
 }
